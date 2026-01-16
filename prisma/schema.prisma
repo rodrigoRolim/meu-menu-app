@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model File {
+  id           String   @id @default(cuid())
+  filename     String   @unique
+  originalName String
+  url          String   @unique
+  size         Int
+  // key          String   @unique // chave no S3/storage
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([url])
+}
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  password   String
+  phone      String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+
+model Establishment {
+  id                     String   @id @default(cuid())
+  name                   String
+  phone                  String   @unique
+  
+  // location
+  address                String
+  city                   String
+  state                  String
+  neighborhood           String
+  zipCode                String
+  complement             String?
+  
+  // slug
+  slug                   String   @unique // ex: pirraria-do-ze
+
+  // preparation time in minutes
+  estimatedPreparationTime Int
+  // prices and taxes
+  minOrderAmount           Int // in cents
+  deliveryFee              Int // in cents
+
+  // working time
+  businessHours            OpeningHour[]
+
+  // accept terms
+  acceptedTerms            Boolean  @default(false)
+
+  // status: open, closed, invisible
+  isVisible                Boolean  @default(false)
+  isOpen                   Boolean  @default(false)
+
+  // TODO: logo and conver image
+  logoUrl                  String?
+  coverImageUrl           String?
+  // timestamps
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+
+  @@index([slug])
+  @@index([phone])
+}
+
+model OpeningHour {
+  id  String @id @default(cuid())
+  dayOfWeek Int
+  openTime String
+  closeTime String
+  
+  establishmentId String
+  establishment Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+
+  @@index([establishmentId])
+  @@index([establishmentId, dayOfWeek])
+}
