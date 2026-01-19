@@ -6,8 +6,7 @@ import { CreateEstablishmentInput } from "./dto/create-establishment.input";
 export class EstablishmentService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(data: CreateEstablishmentInput) {
-    console.log(data)
+  async create(data: CreateEstablishmentInput, ownerId: string) {
     return this.prisma.establishment.create({
        data: {
         name: data.name,
@@ -27,6 +26,9 @@ export class EstablishmentService {
         isOpen: data.isOpen,
         logoUrl: data.logoUrl,
         coverImageUrl: data.coverImageUrl,
+        owner: {
+          connect: { id: ownerId }
+        },
 
         businessHours: {
           create: data.businessHours?.length
@@ -36,5 +38,14 @@ export class EstablishmentService {
               ]
         } 
      }})
+  }
+
+  async saveCoverImage(establishmentId: string, fileUrl: string) {
+    return this.prisma.establishment.update({
+      where: { id: establishmentId },
+      data: {
+        coverImageUrl: fileUrl
+      }
+    })
   }
 }
