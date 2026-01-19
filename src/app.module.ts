@@ -7,11 +7,14 @@ import { ConfigModule } from '@nestjs/config';
 // import { join } from 'path/win32';
 import { PrismaModule } from './prisma/prisma.module';
 import { EstablishmentModule } from './establishment/establishment.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     //   driver: ApolloDriver,
     //   autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
@@ -19,7 +22,8 @@ import { EstablishmentModule } from './establishment/establishment.module';
     //   graphiql: true,
     // }),
     PrismaModule,
-    EstablishmentModule
+    EstablishmentModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
